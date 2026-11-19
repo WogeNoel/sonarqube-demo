@@ -1,0 +1,14 @@
+.gradle/
+build/
+.idea/
+*.iml
+.vscode/
+out/
+.scannerwork/
+
+# Hinweis: VoucherService(.Test).java werden während der Demo ins src-Verzeichnis kopiert.
+# Sie stehen bewusst NICHT hier – SonarQube ignoriert per .gitignore ausgeschlossene Dateien.
+# Nach der Demo: .\scripts\demo.ps1 -Schritt basis -OhneScan
+
+# Office-Sperrdateien
+~$*

@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'org.sonarqube' version '7.6.0.18749'
+}
+
+group = 'de.demo'
+version = '1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+// Coverage-Report im XML-Format: SonarQube misst Coverage nicht selbst, sondern liest diesen Report ein.
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+    }
+}
+
+// Das Token wird NIE hier eingetragen, sondern als Umgebungsvariable SONAR_TOKEN übergeben.
+sonar {
+    properties {
+        property 'sonar.projectKey', 'sonarqube-demo-shop'
+        property 'sonar.projectName', 'SonarQube Demo - Mini-Shop'
+        property 'sonar.host.url', System.getenv('SONAR_HOST_URL') ?: 'http://localhost:9000'
+    }
+}

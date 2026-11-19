@@ -1,0 +1,38 @@
+# Lokale SonarQube-Instanz (Community Build) + PostgreSQL – nur für Demo-Zwecke.
+# Start:  docker compose up -d      -> http://localhost:9000  (Login: admin / admin)
+# Stopp:  docker compose down       (Daten bleiben erhalten)
+# Reset:  docker compose down -v    (löscht alle Analysen und Benutzer)
+services:
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube-demo
+    depends_on:
+      - db
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+      # Elasticsearch-Bootstrap-Checks für den lokalen Demo-Betrieb abschalten
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+
+  db:
+    image: postgres:17
+    container_name: sonarqube-demo-db
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  postgresql:

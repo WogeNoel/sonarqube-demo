@@ -1,0 +1,34 @@
+# CI-Pipeline: Build + Tests bei jedem Push/Pull Request.
+# Die SonarQube-Analyse läuft nur, wenn die Repository-Secrets SONAR_TOKEN und SONAR_HOST_URL
+# gesetzt sind (z. B. für SonarQube Cloud oder einen erreichbaren SonarQube Server).
+name: Build & SonarQube
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # volle Git-Historie: SonarQube erkennt damit "neuen Code"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Build und Tests
+        run: ./gradlew build --console=plain
+
+      - name: SonarQube-Analyse inkl. Quality Gate
+        if: env.SONAR_TOKEN != ''
+        # schlägt fehl, wenn das Quality Gate rot ist -> Merge wird blockiert
+        run: ./gradlew sonar -Dsonar.qualitygate.wait=true --console=plain
